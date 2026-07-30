@@ -65,12 +65,12 @@
             background: linear-gradient(
                 180deg,
                 var(--marian-blue)   0%,
-                #d9eef8              18%,
-                var(--marian-cream)  38%,
-                #fdf8f0              55%,
-                #f5e9c8              72%,
-                var(--marian-gold)   85%,
-                var(--marian-dark)   100%
+                #d9eef8              15%,
+                var(--marian-cream)  35%,
+                #fdf8f0              50%,
+                #E3C075              68%,
+                #C59B27              85%,
+                #061B26              100%
             );
             background-size: 100% 500%;
             background-position: center calc(var(--scroll, 0) * 100%);
@@ -99,7 +99,7 @@
         }
 
         /* =========================================
-           4. EFEITOS
+           4. EFEITOS GLASSMORPHISM
         ========================================= */
         .glass-panel {
             background: rgba(255, 255, 255, 0.80);
@@ -231,6 +231,11 @@
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeUpCard {
+            from { opacity: 0; transform: translateY(20px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
@@ -652,12 +657,13 @@
         }
 
         /* =========================================
-           10. APARIÇÕES
+           10. APARIÇÕES (COM PAGINAÇÃO CORRIGIDA)
         ========================================= */
         .grid-aparicoes {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
             gap: 2.5rem;
+            min-height: 520px; /* Evita que a página encolha e pule para a seção de baixo */
         }
 
         .card-aparicao {
@@ -667,8 +673,13 @@
             border: 1px solid rgba(255,255,255,0.8);
             transition: transform 0.4s var(--ease-spring), box-shadow 0.4s ease, background 0.3s ease;
             cursor: default;
-            display: flex;
             flex-direction: column;
+            display: none;
+        }
+
+        .card-aparicao.show {
+            display: flex;
+            animation: fadeUpCard 0.6s var(--ease-out) forwards;
         }
 
         .card-aparicao:hover {
@@ -700,7 +711,6 @@
             width: 100%; height: 100%;
             object-fit: contain;
             transition: transform 0.6s var(--ease-out);
-            /* filter: drop-shadow removido — bug Safari/iOS com object-fit */
         }
 
         .card-aparicao:hover .card-img img { transform: scale(1.08); }
@@ -726,6 +736,50 @@
             font-size: 0.95rem;
             color: var(--text-muted);
             line-height: 1.7;
+        }
+
+        /* Controles de Paginação com respiro de sombra */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 3.5rem;
+            padding: 0.5rem 0; /* Impede cortes na sombra do botão */
+        }
+
+        .btn-page {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(74, 158, 196, 0.3);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--marian-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .btn-page:hover {
+            background: var(--white);
+            border-color: var(--marian-gold);
+            transform: translateY(-2px);
+        }
+
+        .btn-page.active {
+            background: linear-gradient(135deg, var(--marian-gold), var(--marian-gold-lt));
+            color: var(--marian-deep);
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(212,168,67,0.35);
         }
 
         /* =========================================
@@ -762,7 +816,6 @@
             box-shadow: 0 16px 48px rgba(30,96,128,0.1);
             position: relative;
             z-index: 1;
-            animation: float 6s ease-in-out infinite;
             -webkit-transform: translateZ(0);
             transform: translateZ(0);
         }
@@ -790,13 +843,17 @@
             padding-left: 0.5rem;
         }
 
+        /* CORREÇÃO DO CORTE NOS NÚMEROS DO TERÇO */
         .passo-numero {
             font-family: 'Playfair Display', serif;
             font-size: 2.2rem;
             color: var(--marian-gold);
-            line-height: 0.85;
+            line-height: 1.1; /* Aumentado de 0.85 para não cortar o topo/base da fonte */
             font-weight: 700;
-            min-width: 48px;
+            min-width: 58px; /* Mais largura para o "01" e "04" não cortarem dos lados */
+            padding: 2px 4px 2px 0;
+            display: inline-block;
+            flex-shrink: 0;
             background: linear-gradient(135deg, var(--marian-gold), var(--marian-gold-lt));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1456,7 +1513,7 @@
                     <h2>Aparições de Maria</h2>
                 </div>
 
-                <div class="grid-aparicoes reveal-stagger">
+                <div class="grid-aparicoes">
                     <!-- Card Fátima -->
                     <article class="card-aparicao">
                         <div class="card-img">
@@ -1511,7 +1568,8 @@
                             <p>Na capela da Rue du Bac, a Virgem Maria manifestou-se à noviça Santa Catarina Labouré com feixes de luz e graças brotando de suas mãos sobre o mundo. Encomendou a cunhagem da Medalha Milagrosa e revelou a oração: "Ó Maria concebida sem pecado, rogai por nós que recorremos a vós". Esta devoção se espalhou velozmente por todo o planeta através de milagres e graças concedidas a quem a carrega com fidelidade.</p>
                         </div>
                     </article>
-                        <!-- Card Aparecida -->
+                    
+                    <!-- Card Aparecida -->
                     <article class="card-aparicao">
                         <div class="card-img">
                             <img src="imagens/aparecida.png" alt="Nossa Senhora Aparecida" loading="eager">
@@ -1523,6 +1581,10 @@
                     </article>        
              
                 </div>
+
+                <!-- Div de Controles da Paginação -->
+                <div class="pagination-controls" id="aparicoesPagination"></div>
+
             </div>
         </section>
 
@@ -1530,7 +1592,7 @@
         <section id="terco" class="reveal">
             <div class="container glass-panel">
                 <div class="section-header">
-                    <div class="section-eyebrow">Arma Espiritual</div>
+                    <div class="section-eyebrow">Santo Terço</div>
                     <h2>Como Rezar o Terço</h2>
                 </div>
 
@@ -1718,7 +1780,7 @@
                 { num: "I", tit: "O Batismo de Jesus", desc: "Jesus é batizado por São João Batista nas águas do Rio Jordão." },
                 { num: "II", tit: "As Bodas de Caná", desc: "Jesus realiza Seu primeiro milagre transformando água em vinho a pedido de Sua Mãe." },
                 { num: "III", tit: "O Anúncio do Reino", desc: "Jesus anuncia o Reino de Deus e convida todos à verdadeira conversão do coração." },
-                { num: "IV", tit: "A Transfiguração", desc: "Jesus se transfigura no Monte Tabor na presença de Pedro, Tiago e João." },
+                { num: "IV", tit: "A Transfiguração", desc: "Jesus se transfigura no Monte Tabor na presence de Pedro, Tiago e João." },
                 { num: "V", tit: "A Instituição da Eucaristia", desc: "Jesus institui a Santíssima Eucaristia durante a Última Ceia com os apóstolos." }
             ],
             dolorosos: [
@@ -1730,22 +1792,16 @@
             ],
             gloriosos: [
                 { num: "I", tit: "A Ressurreição", desc: "Jesus ressuscita glorioso e vitorioso sobre o pecado e a morte ao terceiro dia." },
-                { num: "II", tit: "A Ascensão ao Céu", desc: "Jesus sobe aos Céus na presença de Sua Mãe e de Seus discípulos." },
+                { num: "II", tit: "A Ascensão ao Céu", desc: "Jesus sobe aos Céus na presence de Sua Mãe e de Seus discípulos." },
                 { num: "III", tit: "A Descida do Espírito Santo", desc: "O Espírito Santo desce em forma de línguas de fogo sobre Maria e os Apóstolos no Cenáculo." },
                 { num: "IV", tit: "A Assunção de Maria", desc: "A Virgem Maria é elevada em corpo e alma à glória celestial." },
                 { num: "V", tit: "A Coroação de Maria", desc: "Nossa Senhora é coroada pela Santíssima Trindade como Rainha do Céu e da Terra." }
             ]
         };
 
-        // Mapeamento dos dias da semana (0 = Dom, 1 = Seg... 6 = Sáb)
         const dayMap = {
-            0: "gloriosos",
-            1: "gozosos",
-            2: "dolorosos",
-            3: "gloriosos",
-            4: "luminosos",
-            5: "dolorosos",
-            6: "gozosos"
+            0: "gloriosos", 1: "gozosos", 2: "dolorosos", 3: "gloriosos",
+            4: "luminosos", 5: "dolorosos", 6: "gozosos"
         };
 
         function renderMisterios(key) {
@@ -1913,6 +1969,54 @@
             resizeCanvas();
             createParticles();
         });
+
+        // ─── Paginação de Aparições ────────────────────
+        const aparicoesCards = document.querySelectorAll('.card-aparicao');
+        const paginationContainer = document.getElementById('aparicoesPagination');
+        const cardsPerPage = 3;
+        const totalPages = Math.ceil(aparicoesCards.length / cardsPerPage);
+
+        function showAparicoesPage(page, shouldScroll = false) {
+            aparicoesCards.forEach((card, index) => {
+                card.classList.remove('show');
+                if (index >= (page - 1) * cardsPerPage && index < page * cardsPerPage) {
+                    setTimeout(() => {
+                        card.classList.add('show');
+                    }, (index % cardsPerPage) * 80); 
+                }
+            });
+
+            document.querySelectorAll('.btn-page').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.page) === page);
+            });
+
+            // Evita o salto para o "Santo Terço" e centraliza confortavelmente a leitura na seção Aparições
+            if (shouldScroll) {
+                const aparicoesHeader = document.querySelector('#aparicoes');
+                if (aparicoesHeader) {
+                    aparicoesHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
+        if (totalPages > 1 && paginationContainer) {
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn-page';
+                btn.dataset.page = i;
+                btn.innerText = i;
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showAparicoesPage(i, true);
+                });
+                paginationContainer.appendChild(btn);
+            }
+            showAparicoesPage(1, false);
+        } else {
+            aparicoesCards.forEach(card => card.classList.add('show'));
+            if(paginationContainer) paginationContainer.style.display = 'none';
+        }
 
         // ─── Formulário de Pedidos de Oração ──────────
         const form     = document.getElementById('contatoForm');
