@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="pt-BR" style="scroll-padding-top: 80px;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reze o Santo Terço em tempo real com a Comunidade Totus Tuus. Acompanhamento passo a passo de cada oração e mistério.">
+    <title>Rezar o Santo Terço · Totus Tuus</title>
+    <link rel="icon" href="imagens/logo.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================================
+           1. VARIÁVEIS E SISTEMA DE TEMAS (CLARO / ESCURO)
+        ========================================= */
+        :root {
+            --marian-blue:    #4A9EC4;
+            --marian-dark:    #1E6080;
+            --marian-deep:    #12425A;
+            --marian-gold:    #D4A843;
+            --marian-gold-lt: #F0D080;
+            --marian-light:   #EEF6FA;
+            --marian-cream:   #FAF6EE;
+            --white:          #ffffff;
+
+            --text-dark:      #1a2e38;
+            --text-mid:       #345468;
+            --text-muted:     #5a7a8a;
+
+            --panel-bg:       rgba(255, 255, 255, 0.82);
+            --panel-border:   rgba(255, 255, 255, 0.75);
+            --panel-shadow:   0 24px 60px rgba(30, 96, 128, 0.08);
+            --card-bg:        rgba(255, 255, 255, 0.65);
+            --card-border:    rgba(255, 255, 255, 0.85);
+            --title-color:    #1E6080;
+
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition: all 0.35s var(--ease-out);
+        }
+
+        [data-theme="dark"] {
+            --marian-light:   #0E2330;
+            --marian-cream:   #0A1A24;
+            --text-dark:      #E8F2F8;
+            --text-mid:       #BFD7E6;
+            --text-muted:     #82A1B4;
+
+            --panel-bg:       rgba(12, 32, 44, 0.88);
+            --panel-border:   rgba(74, 158, 196, 0.22);
+            --panel-shadow:   0 24px 60px rgba(0, 0, 0, 0.4);
+            --card-bg:        rgba(16, 42, 58, 0.65);
+            --card-border:    rgba(74, 158, 196, 0.2);
+            --title-color:    #FAF6EE;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%; max-width: 100vw;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            line-height: 1.75;
+            min-height: 100vh;
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--marian-gold);
+            outline-offset: 3px;
+        }
+
+        /* =========================================
+           2. FUNDO DINÂMICO GRADIENTE DO SITE
+        ========================================= */
+        .scroll-gradient-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -2;
+            background: linear-gradient(
+                180deg,
+                var(--marian-blue)   0%,
+                #d9eef8              15%,
+                var(--marian-cream)  35%,
+                #fdf8f0              50%,
+                #E3C075              68%,
+                #C59B27              85%,
+                #061B26              100%
+            );
+            background-size: 100% 500%;
+            background-position: center calc(var(--scroll, 0) * 100%);
+        }
+
+        .scroll-gradient-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(212,168,67,0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* =========================================
+           3. GLASS PANEL (MESMO PADRÃO DO SITE)
+        ========================================= */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 28px;
+            padding: 4.5rem 3.5rem;
+            box-shadow: var(--panel-shadow);
+            border: 1px solid var(--panel-border);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+        }
+
+        /* =========================================
+           3.1 ESTILOS ESPECÍFICOS DO MODO ESCURO
+        ========================================= */
+        [data-theme="dark"] .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(74, 158, 196, 0.22);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] .glass-panel::before {
+            display: none !important;
+        }
+
+        [data-theme="dark"] .scroll-gradient-bg {
+            background: linear-gradient(
+                180deg,
+                #081720   0%,
+                #0c2230   15%,
+                #06151e   35%,
+                #0b202c   50%,
+                #183444   68%,
+                #102430   85%,
+                #03090e   100%
+            );
+        }
+
+        [data-theme="dark"] .section-header h2 {
+            color: var(--title-color) !important;
+        }
+
+        [data-theme="dark"] .card-selecao {
+            background: var(--card-bg);
+            border-color: var(--card-border);
+        }
+
+        [data-theme="dark"] .card-selecao:hover {
+            background: rgba(22, 56, 78, 0.95);
+            border-color: var(--marian-gold);
+        }
+
+        [data-theme="dark"] .card-selecao h3 {
+            color: var(--white);
+        }
+
+        [data-theme="dark"] .card-selecao .dias-tag {
+            color: var(--marian-gold-lt);
+        }
+
+        [data-theme="dark"] .btn-misterio-tab {
+            background: rgba(16, 42, 58, 0.7);
+            border-color: rgba(74, 158, 196, 0.3);
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] .btn-misterio-tab:hover {
+            background: rgba(24, 62, 86, 0.9);
+            border-color: var(--marian-gold);
+        }
+
+        [data-theme="dark"] .oracao-titulo {
+            color: var(--title-color);
+        }
+
+        [data-theme="dark"] .oracao-texto {
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] .oracao-top-bar {
+            border-bottom-color: rgba(74, 158, 196, 0.2);
+        }
+
+        [data-theme="dark"] #labelMisterioAtivo {
+            color: var(--white) !important;
+        }
+
+        [data-theme="dark"] .conta-item {
+            background: rgba(14, 36, 48, 0.8);
+            border-color: rgba(74, 158, 196, 0.3);
+        }
+
+        [data-theme="dark"] .conta-item.feita {
+            background: var(--marian-blue);
+            border-color: var(--marian-dark);
+        }
+
+        [data-theme="dark"] .conta-item.ativa {
+            background: linear-gradient(135deg, var(--marian-gold), var(--marian-gold-lt));
+            border-color: var(--marian-gold);
+            box-shadow: 0 4px 14px rgba(212, 168, 67, 0.5);
+        }
+
+        [data-theme="dark"] .fruto-mistério {
+            background: rgba(212, 168, 67, 0.12);
+            border-color: rgba(212, 168, 67, 0.35);
+            color: var(--marian-gold-lt);
+        }
+
+        /* =========================================
+           4. TIPOGRAFIA E CABEÇALHO DE SEÇÃO
+        ========================================= */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            width: 100%;
+        }
+
+        .section-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--marian-gold);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .section-eyebrow::before,
+        .section-eyebrow::after {
+            content: '';
+            display: block;
+            width: 28px; height: 1px;
+            background: var(--marian-gold);
+            opacity: 0.5;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            color: var(--marian-dark);
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.02rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* =========================================
+           5. NAVBAR (IDÊNTICO AO SITE)
+        ========================================= */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background: rgba(18, 66, 90, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(212,168,67,0.15);
+            padding: 0.85rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10000;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.15);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 2.5px;
+            text-decoration: none;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .logo-cross {
+            font-size: 1.1rem;
+            color: var(--marian-gold-lt);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--marian-gold-lt);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; left: 0;
+            width: 0; height: 1.5px;
+            background: linear-gradient(90deg, var(--marian-gold), var(--marian-gold-lt));
+            transition: width 0.35s var(--ease-out);
+            border-radius: 2px;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.2rem;
+            background: rgba(37, 211, 102, 0.15);
+            border: 1px solid rgba(37, 211, 102, 0.35);
+            border-radius: 40px;
+            color: #5fff9a !important;
+            font-size: 0.82rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.3px;
+            transition: var(--transition) !important;
+        }
+
+        .nav-whatsapp:hover {
+            background: rgba(37, 211, 102, 0.28) !important;
+            border-color: rgba(37, 211, 102, 0.6) !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-whatsapp::after { display: none !important; }
+
+        /* =========================================
+           6. BOTÕES DO SISTEMA ORIGINAL
+        ========================================= */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--marian-gold), var(--marian-gold-lt) 60%, var(--marian-gold));
+            background-size: 200% auto;
+            color: var(--marian-deep);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 24px rgba(212,168,67,0.25), 0 2px 0 rgba(255,255,255,0.2) inset;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            background-position: right center;
+            box-shadow: 0 16px 36px rgba(212,168,67,0.35);
+        }
+
+        .btn-misterio-tab {
+            padding: 0.75rem 1.6rem;
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(74, 158, 196, 0.25);
+            border-radius: 40px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--marian-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-misterio-tab:hover {
+            background: var(--white);
+            border-color: var(--marian-gold);
+            transform: translateY(-2px);
+        }
+
+        .btn-misterio-tab.active {
+            background: linear-gradient(135deg, var(--marian-dark), var(--marian-deep));
+            color: var(--white);
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(18, 66, 90, 0.22);
+        }
+
+        .tab-hoje-badge {
+            background: var(--marian-gold);
+            color: var(--marian-deep);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.15rem 0.55rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* =========================================
+           7. CARDS DOS MISTÉRIOS (SELEÇÃO)
+        ========================================= */
+        .grid-selecao-misterios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+
+        .card-selecao {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2.2rem 1.8rem;
+            transition: transform 0.4s var(--ease-spring), box-shadow 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .card-selecao:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(30, 96, 128, 0.1);
+            background: var(--white);
+            border-color: var(--marian-gold);
+        }
+
+        .card-selecao.hoje-card {
+            border-color: var(--marian-gold);
+            box-shadow: 0 10px 30px rgba(212, 168, 67, 0.18);
+        }
+
+        /* NÚMERO DOURADO DO SITE */
+        .passo-numero {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--marian-gold);
+            line-height: 1.1;
+            font-weight: 700;
+            display: inline-block;
+            background: linear-gradient(135deg, var(--marian-gold), var(--marian-gold-lt));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-selecao h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            color: var(--marian-dark);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .card-selecao .dias-tag {
+            color: var(--marian-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0.85;
+        }
+
+        .card-selecao p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            flex-grow: 1;
+        }
+
+        /* =========================================
+           8. TELA DE ORAÇÃO GUIADA
+        ========================================= */
+        #secao-oracao {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .oracao-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(74, 158, 196, 0.15);
+            padding-bottom: 1.5rem;
+        }
+
+        .progresso-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(74, 158, 196, 0.15);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+
+        .progresso-barra {
+            height: 100%;
+            background: linear-gradient(90deg, var(--marian-blue), var(--marian-gold));
+            width: 0%;
+            transition: width 0.4s var(--ease-out);
+            border-radius: 6px;
+        }
+
+        .oracao-corpo {
+            text-align: center;
+            padding: 2rem 1rem;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .oracao-contexto {
+            color: var(--marian-gold);
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .oracao-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+            color: var(--marian-dark);
+            font-weight: 600;
+            margin-bottom: 1.8rem;
+            line-height: 1.25;
+        }
+
+        .oracao-texto {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            line-height: 1.85;
+            max-width: 680px;
+            margin: 0 auto;
+            white-space: pre-line;
+        }
+
+        .fruto-mistério {
+            display: inline-block;
+            margin-top: 1.8rem;
+            padding: 0.6rem 1.6rem;
+            background: rgba(212, 168, 67, 0.1);
+            border: 1px solid rgba(212, 168, 67, 0.3);
+            border-radius: 30px;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.02rem;
+            color: var(--marian-dark);
+            font-weight: 600;
+        }
+
+        /* =========================================
+           9. CONTAS DO TERÇO (VISUALIZAÇÃO TÁTIL)
+        ========================================= */
+        .contas-wrapper {
+            width: 100%;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(74, 158, 196, 0.15);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .contas-linha {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: rgba(74, 158, 196, 0.2);
+            z-index: 0;
+        }
+
+        .contas-slot {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .conta-item {
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(74, 158, 196, 0.35);
+        }
+
+        .conta-pequena {
+            width: 14px;
+            height: 14px;
+        }
+
+        .conta-grande {
+            width: 20px;
+            height: 20px;
+            margin: 0 4px;
+        }
+
+        .conta-item.feita {
+            background: var(--marian-blue);
+            border-color: var(--marian-dark);
+        }
+
+        .conta-item.ativa {
+            background: linear-gradient(135deg, var(--marian-gold), var(--marian-gold-lt));
+            border-color: var(--marian-gold);
+            box-shadow: 0 4px 14px rgba(212, 168, 67, 0.45);
+            transform: scale(1.35);
+        }
+
+        /* =========================================
+           10. CONTROLES DE NAVEGAÇÃO DA ORAÇÃO
+        ========================================= */
+        .oracao-controles {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2.5rem;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .oracao-dica-teclado {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            flex: 1;
+        }
+
+        /* =========================================
+           11. CONCLUSÃO DO TERÇO
+        ========================================= */
+        #secao-conclusao {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .conclusao-img {
+            max-height: 160px;
+            object-fit: contain;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 10px 20px rgba(30, 96, 128, 0.15));
+        }
+
+        /* =========================================
+           12. FOOTER (EXATO DO SITE)
+        ========================================= */
+        footer {
+            background: var(--marian-deep);
+            color: rgba(255,255,255,0.45);
+            text-align: center;
+            padding: 3.5rem 5% 2.5rem;
+            font-size: 0.88rem;
+            font-weight: 300;
+            border-top: 1px solid rgba(212,168,67,0.1);
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .footer-cross-ornament {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .footer-cross-ornament::before,
+        .footer-cross-ornament::after {
+            content: '';
+            display: block;
+            width: 60px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212,168,67,0.3));
+        }
+
+        .footer-cross-ornament::after {
+            background: linear-gradient(90deg, rgba(212,168,67,0.3), transparent);
+        }
+
+        .footer-cross-ornament svg {
+            color: rgba(212,168,67,0.5);
+            flex-shrink: 0;
+        }
+
+        .footer-quote {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            color: rgba(240,208,128,0.6);
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+
+        .footer-quote-ref {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--marian-gold-lt);
+        }
+
+        .footer-divider {
+            width: 40px; height: 1px;
+            background: rgba(212,168,67,0.2);
+            margin: 0 auto 1.5rem;
+        }
+
+        footer .footer-credit {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.3);
+        }
+
+        footer .footer-credit span {
+            color: var(--marian-gold-lt);
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+        }
+
+        /* =========================================
+           13. RESPONSIVIDADE E MENU MOBILE
+        ========================================= */
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1002;
+        }
+
+        .theme-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 168, 67, 0.35);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--marian-gold-lt);
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(212, 168, 67, 0.25);
+            border-color: var(--marian-gold);
+            transform: scale(1.06);
+        }
+
+        .theme-toggle-btn svg {
+            pointer-events: none;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            position: relative;
+            z-index: 1002;
+            padding: 9px 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            position: absolute;
+            height: 2px;
+            width: calc(100% - 10px);
+            left: 5px;
+            background: var(--white);
+            border-radius: 2px;
+            transition: all 0.4s var(--ease-out);
+        }
+
+        .menu-toggle span:nth-child(1) { top: 11px; }
+        .menu-toggle span:nth-child(2) { top: 19px; }
+        .menu-toggle span:nth-child(3) { top: 27px; }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg); top: 19px; background: var(--marian-gold-lt);
+        }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg); top: 19px; background: var(--marian-gold-lt);
+        }
+
+        .nav-backdrop {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 15, 22, 0.65);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+
+        .nav-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .main-rezar {
+            padding: 110px 5% 4.5rem;
+            min-height: 85vh;
+            min-height: 85dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 900px) {
+            .menu-toggle { display: block; }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: min(85vw, 340px);
+                height: 100vh;
+                height: 100dvh;
+                background: #0B202D !important;
+                border-left: 1px solid rgba(212, 168, 67, 0.3);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: stretch;
+                padding: 5.5rem 1.6rem 2.5rem;
+                gap: 0.5rem;
+                transform: translateX(105%);
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
+                box-shadow: -10px 0 40px rgba(0, 0, 0, 0.65);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                z-index: 10001;
+                visibility: hidden;
+                display: flex !important;
+            }
+
+            .nav-links.active {
+                transform: translateX(0);
+                visibility: visible;
+            }
+
+            .nav-links li {
+                width: 100%;
+                list-style: none;
+            }
+
+            .nav-links a {
+                display: flex;
+                align-items: center;
+                font-size: 1.1rem;
+                font-weight: 500;
+                padding: 0.95rem 1.15rem;
+                border-radius: 12px;
+                color: #FFFFFF !important;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                text-decoration: none;
+                width: 100%;
+                transition: all 0.2s ease;
+            }
+
+            .nav-links a:hover,
+            .nav-links a.active {
+                background: rgba(212, 168, 67, 0.2);
+                border-color: var(--marian-gold);
+                color: var(--marian-gold-lt) !important;
+            }
+
+            .nav-links a::after { display: none; }
+
+            .nav-whatsapp {
+                margin-top: 0.8rem !important;
+                padding: 0.9rem 1.2rem !important;
+                font-size: 0.95rem !important;
+                justify-content: center !important;
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 900px) {
+            [data-theme="dark"] .nav-links {
+                background: #081720 !important;
+                border-left-color: rgba(74, 158, 196, 0.25);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-rezar {
+                padding: 78px 1rem 3rem !important;
+            }
+            .glass-panel {
+                padding: 2.2rem 1.25rem;
+                border-radius: 20px;
+            }
+            .section-header {
+                margin-bottom: 2.2rem;
+            }
+            .section-header h2 {
+                font-size: clamp(1.8rem, 6vw, 2.3rem);
+                line-height: 1.25;
+            }
+            .grid-selecao-misterios {
+                grid-template-columns: 1fr;
+                gap: 1.2rem;
+            }
+            .card-selecao {
+                padding: 1.6rem 1.3rem;
+            }
+            .oracao-corpo {
+                padding: 1.5rem 0.5rem;
+                min-height: 300px;
+            }
+            .oracao-titulo {
+                font-size: 1.7rem;
+                margin-bottom: 1.2rem;
+            }
+            .oracao-texto {
+                font-size: 1.05rem;
+                line-height: 1.75;
+            }
+            .contas-slot {
+                gap: 8px;
+            }
+            .conta-pequena {
+                width: 12px;
+                height: 12px;
+            }
+            .conta-grande {
+                width: 17px;
+                height: 17px;
+            }
+            .oracao-controles {
+                flex-direction: column-reverse;
+                gap: 1rem;
+            }
+            .oracao-controles button {
+                width: 100%;
+                justify-content: center;
+                padding: 0.95rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .glass-panel {
+                padding: 1.8rem 1rem;
+                border-radius: 16px;
+            }
+            .oracao-titulo {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FUNDO GRADIENTE DINÂMICO DO SITE -->
+    <div class="scroll-gradient-bg"></div>
+
+    <!-- CABEÇALHO (NAVBAR PADRÃO DO SITE) -->
+    <header>
+        <nav class="navbar" aria-label="Navegação principal">
+            <a href="index.html" class="logo">
+                <span class="logo-cross">☧</span>
+                Totus Tuus
+            </a>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html#inicio">Início</a></li>
+                <li><a href="index.html#sobre">Sobre</a></li>
+                <li><a href="index.html#aparicoes">Aparições</a></li>
+                <li><a href="index.html#terco">Santo Terço</a></li>
+                <li><a href="index.html#contato">Pedir Oração</a></li>
+                <li>
+                    <a class="nav-whatsapp" href="https://chat.whatsapp.com/EE8UT0e4qykJlr9OLwc1by" target="_blank" rel="noopener">
+                        WhatsApp
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Alternar modo escuro/claro" title="Alternar modo escuro/claro">
+                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none;"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </button>
+                <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </nav>
+        <div class="nav-backdrop" id="navBackdrop"></div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL (DENTRO DO CONTAINER GLASS-PANEL DO SITE) -->
+    <main class="main-rezar">
+        <div class="container" style="max-width: 1100px; width: 100%;">
+            
+            <div class="glass-panel">
+
+                <!-- ─── FASE 1: SELEÇÃO DE MISTÉRIO ─── -->
+                <section id="secao-selecao">
+                    <div class="section-header">
+                        <div class="section-eyebrow">Santo Terço</div>
+                        <h2>Rezar o Terço em Tempo Real</h2>
+                        <p>Selecione o mistério contemplado para recolher seu coração e iniciar sua oração passo a passo.</p>
+                    </div>
+
+                    <div class="grid-selecao-misterios" id="gridMisterios">
+                        <!-- Cards inseridos dinamicamente via JS -->
+                    </div>
+                </section>
+
+                <!-- ─── FASE 2: ORAÇÃO GUIADA ─── -->
+                <section id="secao-oracao">
+                    <div class="oracao-top-bar">
+                        <button type="button" class="btn-misterio-tab" id="btnVoltarSelecao">
+                            ← Escolher outro mistério
+                        </button>
+                        <div style="font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--marian-dark); font-weight: 600;" id="labelMisterioAtivo">
+                            Mistérios Gozosos
+                        </div>
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--marian-gold);" id="contadorPasso">
+                            Passo 1 de 72
+                        </div>
+                    </div>
+
+                    <div class="progresso-container">
+                        <div class="progresso-barra" id="barraProgresso"></div>
+                    </div>
+
+                    <div class="oracao-corpo">
+                        <div class="oracao-contexto" id="oracaoContexto">Orações Iniciais</div>
+                        <h3 class="oracao-titulo" id="oracaoTitulo">Sinal da Cruz</h3>
+                        <p class="oracao-texto" id="oracaoTexto">Texto da oração</p>
+                        <div id="slotFruto"></div>
+                    </div>
+
+                    <!-- Visualização das contas do Rosário -->
+                    <div class="contas-wrapper" id="contasWrapper">
+                        <div class="contas-linha"></div>
+                        <div class="contas-slot" id="contasSlot"></div>
+                    </div>
+
+                    <div class="oracao-controles">
+                        <button type="button" class="btn-misterio-tab" id="btnAnterior" disabled>
+                            ← Anterior
+                        </button>
+                        <div class="oracao-dica-teclado">
+                            Você pode usar a barra de espaço ou deslizar para o lado para rezar
+                        </div>
+                        <button type="button" class="cta-btn" id="btnProximo">
+                            <span id="btnProximoTexto">Avançar</span> →
+                        </button>
+                    </div>
+                </section>
+
+                <!-- ─── FASE 3: CONCLUSÃO DO TERÇO ─── -->
+                <section id="secao-conclusao">
+                    <img src="imagens/terco.png" alt="Santo Terço" class="conclusao-img">
+                    <div class="section-eyebrow">Devoção Concluída</div>
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--marian-dark); margin-bottom: 1rem;">
+                        Glória a Deus
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.8;">
+                        Você concluiu com fidelidade a meditação do Santo Terço. Que a Mãe de Deus interceda continuamente pelas suas intenções, pela sua família e pelo seu caminho de santidade.
+                    </p>
+
+                    <div style="display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;">
+                        <button type="button" class="cta-btn" id="btnRezarNovamente">
+                            Rezar Novamente
+                        </button>
+                        <a href="index.html" class="btn-misterio-tab" style="padding: 1rem 2.2rem;">
+                            Voltar à Página Inicial
+                        </a>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-cross-ornament">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <path d="M12 2v20M7 7h10"/>
+                </svg>
+            </div>
+
+            <p class="footer-quote">"Totus Tuus ego sum, et omnia mea Tua sunt."</p>
+            <p class="footer-quote-ref">— São João Paulo II</p>
+
+            <div class="footer-links">
+                <a href="index.html#inicio">Início</a>
+                <a href="index.html#sobre">Sobre</a>
+                <a href="index.html#aparicoes">Aparições</a>
+                <a href="index.html#terco">Santo Terço</a>
+                <a href="rezar.html">Rezar o Terço</a>
+                <a href="index.html#contato">Pedir Oração</a>
+            </div>
+
+            <div class="footer-divider"></div>
+
+            <p class="footer-credit">Comunidade Jovem Católica <span>Totus Tuus</span> · Feito com fé por Miguel Dionisio</p>
+        </div>
+    </footer>
+
+    <!-- =========================================
+         SCRIPTS
+    ========================================= -->
+    <script>
+    (function () {
+        'use strict';
+
+        // ─── DADOS DAS ORAÇÕES CANÔNICAS ───
+        const PRAYERS = {
+            sinalCruz: "Em nome do Pai, e do Filho, e do Espírito Santo. Amém.",
+            oferecimento: "Divino Jesus, nós vos oferecemos este terço que vamos rezar, meditando nos mistérios da nossa Redenção. Concedei-nos, por intercessão da Virgem Maria, Mãe de Deus e nossa Mãe, as virtudes que nos são necessárias para bem rezá-lo e a graça de ganharmos as indulgências desta santa devoção.",
+            credo: "Creio em Deus Pai todo-poderoso, Criador do céu e da terra; e em Jesus Cristo, seu único Filho, nosso Senhor; que foi concebido pelo poder do Espírito Santo; nasceu da Virgem Maria; padeceu sob Pôncio Pilatos, foi crucificado, morto e sepultado; desceu à mansão dos mortos; ressuscitou ao terceiro dia; subiu aos céus, está sentado à direita de Deus Pai todo-poderoso, de onde há de vir a julgar os vivos e os mortos. Creio no Espírito Santo, na santa Igreja Católica, na comunhão dos santos, na remissão dos pecados, na ressurreição da carne, na vida eterna. Amém.",
+            paiNosso: "Pai nosso que estais nos céus, santificado seja o vosso nome, venha a nós o vosso reino, seja feita a vossa vontade assim na terra como no céu. O pão nosso de cada dia nos dai hoje, perdoai-nos as nossas ofensas assim como nós perdoamos a quem nos tem ofendido, e não nos deixeis cair em tentação, mas livrai-nos do mal. Amém.",
+            aveMaria: "Ave Maria, cheia de graça, o Senhor é convosco, bendita sois vós entre as mulheres e bendito é o fruto do vosso ventre, Jesus. Santa Maria, Mãe de Deus, rogai por nós pecadores, agora e na hora da nossa morte. Amém.",
+            gloria: "Glória ao Pai, e ao Filho, e ao Espírito Santo. Como era no princípio, agora e sempre. Amém.",
+            fatima: "Ó meu Jesus, perdoai-nos, livrai-nos do fogo do inferno. Levai as almas todas para o céu, principalmente as que mais precisarem da vossa misericórdia.",
+            salveRainha: "Salve, Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva. A vós suspiramos, gemendo e chorando neste vale de lágrimas. Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei. E depois deste desterro, mostrai-nos Jesus, bendito fruto do vosso ventre. Ó clemente, ó piedosa, ó doce sempre Virgem Maria. Rogai por nós, Santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Amém.",
+            oracaoFinal: "Infinitas graças vos damos, Soberana Rainha, pelos benefícios que todos os dias recebemos de vossas mãos liberais. Dignai-vos, agora e para sempre, tomar-nos debaixo do vosso poderoso amparo e para mais vos agradar vos saudamos com uma Salve Rainha."
+        };
+
+        const MYSTERIES = {
+            gozosos: {
+                id: 'gozosos',
+                numero: '01',
+                nome: 'Mistérios Gozosos',
+                dias: 'Segunda-feira e Sábado',
+                diasSemana: [1, 6],
+                desc: 'Meditam a Encarnação do Verbo Divino e a infância de Jesus.',
+                decadas: [
+                    { tit: '1º Mistério · A Anunciação do Senhor', desc: 'O Arcanjo Gabriel anuncia à Virgem Maria que ela será a Mãe do Salvador.', fruto: 'Fruto do Mistério: A Humildade' },
+                    { tit: '2º Mistério · A Visitação de Maria a Isabel', desc: 'Nossa Senhora visita sua prima Santa Isabel e proclama o canto do Magnificat.', fruto: 'Fruto do Mistério: A Caridade com o Próximo' },
+                    { tit: '3º Mistério · O Nascimento de Jesus', desc: 'Jesus Cristo nasce na simplicidade e pobreza da gruta de Belém.', fruto: 'Fruto do Mistério: O Desapego Material' },
+                    { tit: '4º Mistério · A Apresentação no Templo', desc: 'Maria e José apresentam o Menino Jesus no Templo quarenta dias após o nascimento.', fruto: 'Fruto do Mistério: A Pureza e Obediência' },
+                    { tit: '5º Mistério · O Encontro no Templo', desc: 'O Menino Jesus é encontrado no Templo de Jerusalém no meio dos doutores da Lei.', fruto: 'Fruto do Mistério: A Busca pela Sabedoria Divina' }
+                ]
+            },
+            luminosos: {
+                id: 'luminosos',
+                numero: '02',
+                nome: 'Mistérios Luminosos',
+                dias: 'Quinta-feira',
+                diasSemana: [4],
+                desc: 'Meditam a vida pública de Jesus e o anúncio do Reino de Deus.',
+                decadas: [
+                    { tit: '1º Mistério · O Batismo de Jesus', desc: 'Jesus é batizado por São João Batista nas águas do Rio Jordão.', fruto: 'Fruto do Mistério: A Fidelidade Batismal' },
+                    { tit: '2º Mistério · As Bodas de Caná', desc: 'Jesus realiza Seu primeiro milagre transformando água em vinho a pedido de Sua Mãe.', fruto: 'Fruto do Mistério: A Confiança na Intercessão de Maria' },
+                    { tit: '3º Mistério · O Anúncio do Reino', desc: 'Jesus anuncia o Reino de Deus e convida todos à verdadeira conversão do coração.', fruto: 'Fruto do Mistério: A Conversão de Vida' },
+                    { tit: '4º Mistério · A Transfiguração', desc: 'Jesus se transfigura no Monte Tabor na presença de Pedro, Tiago e João.', fruto: 'Fruto do Mistério: O Desejo de Santidade' },
+                    { tit: '5º Mistério · A Eucaristia', desc: 'Jesus institui a Santíssima Eucaristia durante a Última Ceia com os apóstolos.', fruto: 'Fruto do Mistério: A Devoção Eucarística' }
+                ]
+            },
+            dolorosos: {
+                id: 'dolorosos',
+                numero: '03',
+                nome: 'Mistérios Dolorosos',
+                dias: 'Terça e Sexta-feira',
+                diasSemana: [2, 5],
+                desc: 'Meditam a Paixão e Morte redentora de Nosso Senhor Jesus Cristo.',
+                decadas: [
+                    { tit: '1º Mistério · A Agonia no Horto', desc: 'Jesus sua sangue no Horto das Oliveiras assumindo os pecados da humanidade.', fruto: 'Fruto do Mistério: A Conformidade com a Vontade de Deus' },
+                    { tit: '2º Mistério · A Flagelação', desc: 'Jesus é cruelmente flagelado e atado à coluna pelos soldados romanos.', fruto: 'Fruto do Mistério: A Mortificação dos Sentidos' },
+                    { tit: '3º Mistério · A Coroação de Espinhos', desc: 'Jesus é coroado com espinhos e insultado como falso rei dos judeus.', fruto: 'Fruto do Mistério: A Humildade de Coração' },
+                    { tit: '4º Mistério · A Subida do Calvário', desc: 'Jesus carrega a pesada Cruz nos ombros a caminho do Monte Calvário.', fruto: 'Fruto do Mistério: A Paciência nas Tribulações' },
+                    { tit: '5º Mistério · A Crucificação e Morte', desc: 'Jesus é pregado na Cruz e entrega Seu espírito ao Pai pela nossa salvação.', fruto: 'Fruto do Mistério: O Perdão e a Salvação das Almas' }
+                ]
+            },
+            gloriosos: {
+                id: 'gloriosos',
+                numero: '04',
+                nome: 'Mistérios Gloriosos',
+                dias: 'Quarta-feira e Domingo',
+                diasSemana: [0, 3],
+                desc: 'Meditam a Ressurreição, a vitória sobre a morte e a glória de Maria.',
+                decadas: [
+                    { tit: '1º Mistério · A Ressurreição', desc: 'Jesus ressuscita glorioso e vitorioso sobre o pecado e a morte ao terceiro dia.', fruto: 'Fruto do Mistério: A Virtude da Fé' },
+                    { tit: '2º Mistério · A Ascensão ao Céu', desc: 'Jesus sobe aos Céus na presença de Sua Mãe e de Seus discípulos.', fruto: 'Fruto do Mistério: A Esperança do Céu' },
+                    { tit: '3º Mistério · O Pentecostes', desc: 'O Espírito Santo desce em forma de línguas de fogo sobre Maria e os Apóstolos.', fruto: 'Fruto do Mistério: O Amor a Deus e o Zelo Apostólico' },
+                    { tit: '4º Mistério · A Assunção de Maria', desc: 'A Virgem Maria é elevada em corpo e alma à glória celestial.', fruto: 'Fruto do Mistério: A Graça de uma Boa Morte' },
+                    { tit: '5º Mistério · A Coroação de Maria', desc: 'Nossa Senhora é coroada pela Santíssima Trindade como Rainha do Céu e da Terra.', fruto: 'Fruto do Mistério: A Perseverança Final' }
+                ]
+            }
+        };
+
+        // ─── ESTADO DA APLICAÇÃO ───
+        let passosOracao = [];
+        let passoAtual = 0;
+        let touchInicioX = 0;
+
+        // ─── RENDERIZAR CARDS DE SELEÇÃO ───
+        function initSelecao() {
+            const grid = document.getElementById('gridMisterios');
+            grid.innerHTML = '';
+            const diaHoje = new Date().getDay();
+
+            Object.values(MYSTERIES).forEach(m => {
+                const ehHoje = m.diasSemana.includes(diaHoje);
+                const card = document.createElement('div');
+                card.className = `card-selecao ${ehHoje ? 'hoje-card' : ''}`;
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="passo-numero">${m.numero}</span>
+                        ${ehHoje ? '<span class="tab-hoje-badge">Hoje</span>' : ''}
+                    </div>
+                    <h3>${m.nome}</h3>
+                    <div class="dias-tag">${m.dias}</div>
+                    <p>${m.desc}</p>
+                    <div style="margin-top: 1rem;">
+                        <span class="cta-btn" style="padding: 0.65rem 1.6rem; font-size: 0.78rem; width: 100%;">
+                            Rezar Este Mistério
+                        </span>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => iniciarTerco(m.id));
+                grid.appendChild(card);
+            });
+        }
+
+        // ─── GERAR ESTRUTURA SEQUENCIAL DO TERÇO ───
+        function gerarPassos(idMisterio) {
+            const steps = [];
+            const mist = MYSTERIES[idMisterio];
+
+            // 1. Sinal da Cruz e Oferecimento
+            steps.push({
+                contexto: 'Orações Iniciais',
+                titulo: 'Sinal da Cruz e Oferecimento',
+                texto: PRAYERS.sinalCruz + '\n\n' + PRAYERS.oferecimento,
+                botao: 'Rezar o Credo',
+                contas: 'none'
+            });
+
+            // 2. Credo
+            steps.push({
+                contexto: 'Orações Iniciais',
+                titulo: 'Credo dos Apóstolos',
+                texto: PRAYERS.credo,
+                botao: 'Rezar o Pai-Nosso',
+                contas: 'none'
+            });
+
+            // 3. Pai-Nosso inicial
+            steps.push({
+                contexto: 'Contas Iniciais · Pelo Santo Padre',
+                titulo: 'Pai-Nosso',
+                texto: PRAYERS.paiNosso,
+                botao: '1ª Ave-Maria (Fé)',
+                contas: 'initial',
+                indiceConta: 0
+            });
+
+            // 4, 5, 6. As 3 Ave-Marias
+            steps.push({
+                contexto: 'Contas Iniciais · 1ª Ave-Maria',
+                titulo: 'Ave-Maria (Pelo Aumento da Fé)',
+                texto: PRAYERS.aveMaria,
+                botao: '2ª Ave-Maria (Esperança)',
+                contas: 'initial',
+                indiceConta: 1
+            });
+
+            steps.push({
+                contexto: 'Contas Iniciais · 2ª Ave-Maria',
+                titulo: 'Ave-Maria (Pela Esperança)',
+                texto: PRAYERS.aveMaria,
+                botao: '3ª Ave-Maria (Caridade)',
+                contas: 'initial',
+                indiceConta: 2
+            });
+
+            steps.push({
+                contexto: 'Contas Iniciais · 3ª Ave-Maria',
+                titulo: 'Ave-Maria (Pela Caridade)',
+                texto: PRAYERS.aveMaria,
+                botao: 'Glória ao Pai',
+                contas: 'initial',
+                indiceConta: 3
+            });
+
+            // 7. Glória ao Pai inicial
+            steps.push({
+                contexto: 'Contas Iniciais',
+                titulo: 'Glória ao Pai',
+                texto: PRAYERS.gloria,
+                botao: '1º Mistério',
+                contas: 'none'
+            });
+
+            // As 5 Dezenas
+            for (let d = 0; d < 5; d++) {
+                const dec = mist.decadas[d];
+                const numDezena = d + 1;
+
+                // Anúncio do Mistério
+                steps.push({
+                    contexto: `${numDezena}ª Dezena · ${mist.nome}`,
+                    titulo: dec.tit,
+                    texto: dec.desc,
+                    fruto: dec.fruto,
+                    botao: 'Pai-Nosso da Dezena',
+                    contas: 'none'
+                });
+
+                // Pai-Nosso da dezena
+                steps.push({
+                    contexto: `${numDezena}ª Dezena · Conta Maior`,
+                    titulo: 'Pai-Nosso',
+                    texto: PRAYERS.paiNosso,
+                    botao: '1ª Ave-Maria',
+                    contas: 'decade',
+                    indiceConta: 0
+                });
+
+                // 10 Ave-Marias
+                for (let a = 1; a <= 10; a++) {
+                    steps.push({
+                        contexto: `${numDezena}ª Dezena · ${a}ª Ave-Maria`,
+                        titulo: 'Ave-Maria',
+                        texto: PRAYERS.aveMaria,
+                        botao: a === 10 ? 'Glória ao Pai' : `Próxima Ave-Maria (${a + 1}/10)`,
+                        contas: 'decade',
+                        indiceConta: a
+                    });
+                }
+
+                // Glória ao Pai
+                steps.push({
+                    contexto: `${numDezena}ª Dezena`,
+                    titulo: 'Glória ao Pai',
+                    texto: PRAYERS.gloria,
+                    botao: 'Oração de Fátima',
+                    contas: 'none'
+                });
+
+                // Oração de Fátima
+                steps.push({
+                    contexto: `${numDezena}ª Dezena`,
+                    titulo: 'Oração de Fátima',
+                    texto: PRAYERS.fatima,
+                    botao: d === 4 ? 'Agradecimento e Salve Rainha' : `${numDezena + 1}º Mistério`,
+                    contas: 'none'
+                });
+            }
+
+            // Conclusão
+            steps.push({
+                contexto: 'Orações Finais',
+                titulo: 'Infinitas Graças',
+                texto: PRAYERS.oracaoFinal,
+                botao: 'Rezar a Salve Rainha',
+                contas: 'none'
+            });
+
+            steps.push({
+                contexto: 'Orações Finais',
+                titulo: 'Salve Rainha',
+                texto: PRAYERS.salveRainha,
+                botao: 'Sinal da Cruz Final',
+                contas: 'none'
+            });
+
+            steps.push({
+                contexto: 'Orações Finais',
+                titulo: 'Sinal da Cruz',
+                texto: PRAYERS.sinalCruz,
+                botao: 'Concluir o Terço',
+                contas: 'none'
+            });
+
+            return steps;
+        }
+
+        // ─── EXECUÇÃO DO FLUXO ───
+        function iniciarTerco(idMisterio) {
+            passosOracao = gerarPassos(idMisterio);
+            passoAtual = 0;
+
+            document.getElementById('labelMisterioAtivo').textContent = MYSTERIES[idMisterio].nome;
+
+            document.getElementById('secao-selecao').style.display = 'none';
+            document.getElementById('secao-conclusao').style.display = 'none';
+            document.getElementById('secao-oracao').style.display = 'flex';
+
+            renderizarPassoAtual();
+            window.scrollTo({ top: 80, behavior: 'smooth' });
+        }
+
+        function renderizarPassoAtual() {
+            if (passoAtual >= passosOracao.length) {
+                document.getElementById('secao-oracao').style.display = 'none';
+                document.getElementById('secao-conclusao').style.display = 'flex';
+                window.scrollTo({ top: 80, behavior: 'smooth' });
+                return;
+            }
+
+            const passo = passosOracao[passoAtual];
+
+            document.getElementById('oracaoContexto').textContent = passo.contexto;
+            document.getElementById('oracaoTitulo').textContent = passo.titulo;
+            document.getElementById('oracaoTexto').textContent = passo.texto;
+
+            const slotFruto = document.getElementById('slotFruto');
+            if (passo.fruto) {
+                slotFruto.innerHTML = `<span class="fruto-mistério">${passo.fruto}</span>`;
+            } else {
+                slotFruto.innerHTML = '';
+            }
+
+            // Contador e barra de progresso
+            document.getElementById('contadorPasso').textContent = `Passo ${passoAtual + 1} de ${passosOracao.length}`;
+            const pct = Math.round(((passoAtual + 1) / passosOracao.length) * 100);
+            document.getElementById('barraProgresso').style.width = `${pct}%`;
+
+            // Botões
+            document.getElementById('btnAnterior').disabled = (passoAtual === 0);
+            document.getElementById('btnProximoTexto').textContent = passo.botao || 'Avançar';
+
+            // Contas
+            renderizarContas(passo);
+        }
+
+        function renderizarContas(passo) {
+            const wrapper = document.getElementById('contasWrapper');
+            const slot = document.getElementById('contasSlot');
+            slot.innerHTML = '';
+
+            if (passo.contas === 'none') {
+                wrapper.style.display = 'none';
+                return;
+            }
+
+            wrapper.style.display = 'flex';
+
+            // initial: 1 grande + 3 pequenas = 4 contas
+            // decade: 1 grande + 10 pequenas = 11 contas
+            const totalContas = passo.contas === 'initial' ? 4 : 11;
+
+            for (let i = 0; i < totalContas; i++) {
+                const conta = document.createElement('div');
+                const ehGrande = (i === 0);
+
+                conta.className = `conta-item ${ehGrande ? 'conta-grande' : 'conta-pequena'}`;
+
+                if (i < passo.indiceConta) {
+                    conta.classList.add('feita');
+                } else if (i === passo.indiceConta) {
+                    conta.classList.add('ativa');
+                }
+
+                slot.appendChild(conta);
+            }
+        }
+
+        function avancar() {
+            if (passoAtual < passosOracao.length) {
+                passoAtual++;
+                renderizarPassoAtual();
+            }
+        }
+
+        function voltar() {
+            if (passoAtual > 0) {
+                passoAtual--;
+                renderizarPassoAtual();
+            }
+        }
+
+        // ─── EVENTOS ───
+        document.getElementById('btnProximo').addEventListener('click', avancar);
+        document.getElementById('btnAnterior').addEventListener('click', voltar);
+
+        document.getElementById('btnVoltarSelecao').addEventListener('click', () => {
+            document.getElementById('secao-oracao').style.display = 'none';
+            document.getElementById('secao-selecao').style.display = 'block';
+            window.scrollTo({ top: 80, behavior: 'smooth' });
+        });
+
+        document.getElementById('btnRezarNovamente').addEventListener('click', () => {
+            document.getElementById('secao-conclusao').style.display = 'none';
+            document.getElementById('secao-selecao').style.display = 'block';
+            window.scrollTo({ top: 80, behavior: 'smooth' });
+        });
+
+        // Teclado
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('secao-oracao').style.display === 'flex') {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    avancar();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    voltar();
+                }
+            }
+        });
+
+        // Touch swipe
+        document.addEventListener('touchstart', (e) => {
+            touchInicioX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (document.getElementById('secao-oracao').style.display !== 'flex') return;
+            const diff = touchInicioX - e.changedTouches[0].screenX;
+            if (diff > 50) avancar();
+            else if (diff < -50) voltar();
+        }, { passive: true });
+
+        // ─── Gradiente por scroll (idêntico ao site principal) ───
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const scrollTop  = window.scrollY;
+                    const docHeight  = document.documentElement.scrollHeight - window.innerHeight;
+                    const pct        = docHeight > 0 ? Math.min(Math.max(scrollTop / docHeight, 0), 1) : 0;
+                    document.documentElement.style.setProperty('--scroll', pct);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        // ─── Modo Escuro / Claro ─────────────────────
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const iconMoon = themeToggleBtn ? themeToggleBtn.querySelector('.icon-moon') : null;
+        const iconSun  = themeToggleBtn ? themeToggleBtn.querySelector('.icon-sun') : null;
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('totus-theme', theme);
+            if (iconMoon && iconSun) {
+                if (theme === 'dark') {
+                    iconMoon.style.display = 'none';
+                    iconSun.style.display = 'block';
+                } else {
+                    iconMoon.style.display = 'block';
+                    iconSun.style.display = 'none';
+                }
+            }
+        }
+
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme') || 'light';
+                applyTheme(current === 'dark' ? 'light' : 'dark');
+            });
+        }
+
+        const savedTheme = localStorage.getItem('totus-theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            applyTheme('dark');
+        } else {
+            applyTheme('light');
+        }
+
+        // ─── Menu mobile (idêntico ao site principal) ───
+        const menuToggle  = document.getElementById('menuToggle');
+        const navLinks    = document.getElementById('navLinks');
+        const navBackdrop = document.getElementById('navBackdrop');
+        const allLinks    = navLinks ? navLinks.querySelectorAll('a') : [];
+
+        function toggleMenu(open) {
+            const isOpen = open !== undefined ? open : !navLinks.classList.contains('active');
+            menuToggle.classList.toggle('active', isOpen);
+            navLinks.classList.toggle('active', isOpen);
+            if (navBackdrop) navBackdrop.classList.toggle('active', isOpen);
+            menuToggle.setAttribute('aria-expanded', isOpen);
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+        }
+
+        if (menuToggle) menuToggle.addEventListener('click', () => toggleMenu());
+        if (navBackdrop) navBackdrop.addEventListener('click', () => toggleMenu(false));
+        allLinks.forEach(a => a.addEventListener('click', () => toggleMenu(false)));
+
+        // Inicializar
+        initSelecao();
+
+    })();
+    </script>
+</body>
+</html>
