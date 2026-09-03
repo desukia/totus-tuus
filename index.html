@@ -11,6 +11,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    <!-- Detecção automática de tema do SO (anti-flicker) -->
+    <script>
+        (function() {
+            try {
+                var isManual = localStorage.getItem('totus-theme-manual') === 'true';
+                var saved = localStorage.getItem('totus-theme');
+                if (isManual && (saved === 'dark' || saved === 'light')) {
+                    document.documentElement.setAttribute('data-theme', saved);
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+
     <style>
         /* =========================================
            1. VARIÁVEIS E SISTEMA DE TEMAS (CLARO / ESCURO)
@@ -2495,9 +2514,16 @@
         const iconMoon = themeToggleBtn ? themeToggleBtn.querySelector('.icon-moon') : null;
         const iconSun  = themeToggleBtn ? themeToggleBtn.querySelector('.icon-sun') : null;
 
-        function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('totus-theme', theme);
+        function getSystemTheme() {
+            try {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+            } catch (e) {}
+            return 'light'; // Padrão claro caso o SO não suporte ou não defina preferência
+        }
+
+        function updateThemeIcons(theme) {
             if (iconMoon && iconSun) {
                 if (theme === 'dark') {
                     iconMoon.style.display = 'none';
@@ -2509,20 +2535,48 @@
             }
         }
 
+        function applyTheme(theme, isManual = false) {
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcons(theme);
+            if (isManual) {
+                localStorage.setItem('totus-theme', theme);
+                localStorage.setItem('totus-theme-manual', 'true');
+            }
+        }
+
+        // Inicialização: respeita escolha manual prévia ou detecta automaticamente o SO
+        const isManual = localStorage.getItem('totus-theme-manual') === 'true';
+        const savedTheme = localStorage.getItem('totus-theme');
+
+        if (isManual && (savedTheme === 'dark' || savedTheme === 'light')) {
+            applyTheme(savedTheme, false);
+        } else {
+            applyTheme(getSystemTheme(), false);
+        }
+
         if (themeToggleBtn) {
             themeToggleBtn.addEventListener('click', () => {
                 const current = document.documentElement.getAttribute('data-theme') || 'light';
-                applyTheme(current === 'dark' ? 'light' : 'dark');
+                const nextTheme = (current === 'dark' ? 'light' : 'dark');
+                applyTheme(nextTheme, true);
             });
         }
 
-        const savedTheme = localStorage.getItem('totus-theme');
-        if (savedTheme) {
-            applyTheme(savedTheme);
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            applyTheme('dark');
-        } else {
-            applyTheme('light');
+        // Reage em tempo real se o usuário alternar o tema do sistema operacional
+        if (window.matchMedia) {
+            try {
+                const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                const handleOSThemeChange = (e) => {
+                    if (localStorage.getItem('totus-theme-manual') !== 'true') {
+                        applyTheme(e.matches ? 'dark' : 'light', false);
+                    }
+                };
+                if (darkModeMediaQuery.addEventListener) {
+                    darkModeMediaQuery.addEventListener('change', handleOSThemeChange);
+                } else if (darkModeMediaQuery.addListener) {
+                    darkModeMediaQuery.addListener(handleOSThemeChange);
+                }
+            } catch (e) {}
         }
 
         // ─── Menu mobile ─────────────────────────────
